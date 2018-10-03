@@ -100,6 +100,15 @@ public class IntegrationTestBuildContext {
         if (version.startsWith("#")) {
             return new BuildServerGradleDistribution(version, previousVersionDir.file(version));
         }
+
+        if (version.contains("-commit-")) {
+            // 5.1-commit-2149a1df4eb5f13b7b136c64dd31ce38c114474a -> 5.1
+            String gradleVersion = version.split("-")[0];
+            TestFile zip = getDistributionsDir().file("gradle-forkpoint/gradle-" + version + "-bin.zip");
+            TestFile gradleHome = getDistributionsDir().file("gradle-forkpoint/gradle-" + version);
+            zip.untarTo(gradleHome);
+            return new DefaultGradleDistribution(GradleVersion.version(gradleVersion), gradleHome, zip);
+        }
         return new ReleasedGradleDistribution(version, previousVersionDir.file(version));
     }
 
