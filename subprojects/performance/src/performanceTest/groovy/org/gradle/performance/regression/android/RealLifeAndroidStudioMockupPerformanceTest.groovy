@@ -43,8 +43,8 @@ class RealLifeAndroidStudioMockupPerformanceTest extends AbstractAndroidStudioMo
 
         where:
         testProject         | iterations
-        "k9AndroidBuild"    | 200
-        "largeAndroidBuild" | 40
+        "k9AndroidBuild"    | 1
+        "largeAndroidBuild" | 1
     }
 
 }

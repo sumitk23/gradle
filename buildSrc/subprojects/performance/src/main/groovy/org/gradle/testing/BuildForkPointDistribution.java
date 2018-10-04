@@ -33,7 +33,6 @@ import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.Comparator;
 import java.util.stream.Stream;
 
 @CacheableTask
@@ -129,19 +128,18 @@ public class BuildForkPointDistribution extends DefaultTask {
         performCheckout(commit.getId().getName());
 
         Process process = new ProcessBuilder()
-            .command(new File(getGradleCloneTmpDir(), "gradlew").getAbsolutePath(), ":distributions:binZip")
+            .command(new File(getGradleCloneTmpDir(), "gradlew").getAbsolutePath(), ":distributions:binZip", ":toolingApi:toolingApiShadedJar")
             .directory(getGradleCloneTmpDir()).inheritIO().start();
 
         boolean success = process.waitFor() == 0;
 
         if (success) {
-            File lastModified = Stream.of(new File(getGradleCloneTmpDir(), "build/distributions").listFiles())
-                .filter(file -> file.getName().endsWith("-bin.zip"))
-                .max(Comparator.comparing(File::lastModified))
-                .get();
             FileUtils.cleanDirectory(getForkPointDistributionDir());
             String baseVersion = new String(Files.readAllBytes(getGradleCloneTmpDir().toPath().resolve("version.txt"))).trim();
-            Files.copy(lastModified.toPath(), getForkPointDistributionDir().toPath().resolve("gradle-" + baseVersion + "-commit-" + commit.getId().getName() + "-bin.zip"));
+            Files.copy(getGradleCloneTmpDir().toPath().resolve("build/distributions/gradle-" + baseVersion + "-bin.zip"),
+                getForkPointDistributionDir().toPath().resolve("gradle-" + baseVersion + "-commit-" + commit.getId().getName() + "-bin.zip"));
+            Files.copy(getGradleCloneTmpDir().toPath().resolve("subprojects/tooling-api/build/shaded-jar/gradle-tooling-api-shaded-" + baseVersion + ".jar"),
+                getForkPointDistributionDir().toPath().resolve("gradle-tooling-api-" + baseVersion + "-commit-" + commit.getId().getName() + ".jar"));
         }
 
         return success;

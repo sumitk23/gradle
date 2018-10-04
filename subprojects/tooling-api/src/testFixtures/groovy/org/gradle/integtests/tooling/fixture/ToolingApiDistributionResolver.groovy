@@ -23,6 +23,7 @@ import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.integtests.fixtures.RepoScriptBlockUtil
 import org.gradle.integtests.fixtures.executer.GradleContextualExecuter
 import org.gradle.integtests.fixtures.executer.IntegrationTestBuildContext
+import org.gradle.integtests.fixtures.executer.LocallyBuiltGradleDistribution
 import org.gradle.testfixtures.ProjectBuilder
 
 class ToolingApiDistributionResolver {
@@ -49,6 +50,11 @@ class ToolingApiDistributionResolver {
         if (!distributions[toolingApiVersion]) {
             if (useToolingApiFromTestClasspath(toolingApiVersion)) {
                 distributions[toolingApiVersion] = new TestClasspathToolingApiDistribution()
+            } else if (LocallyBuiltGradleDistribution.isLocallyBuiltVersion(toolingApiVersion)) {
+                File toolingApiJar = LocallyBuiltGradleDistribution.getToolingApiJar(toolingApiVersion)
+                Dependency slf4jDep = resolutionServices.dependencyHandler.create("org.slf4j:slf4j-api:1.7.25")
+                Configuration slf4jConfig = resolutionServices.configurationContainer.detachedConfiguration(slf4jDep)
+                distributions[toolingApiVersion] = new ExternalToolingApiDistribution(toolingApiVersion, slf4jConfig.files + toolingApiJar)
             } else {
                 Dependency toolingApiDep = resolutionServices.dependencyHandler.create("org.gradle:gradle-tooling-api:$toolingApiVersion")
                 Configuration toolingApiConfig = resolutionServices.configurationContainer.detachedConfiguration(toolingApiDep)
