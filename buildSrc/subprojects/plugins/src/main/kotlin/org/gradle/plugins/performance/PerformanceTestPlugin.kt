@@ -122,10 +122,7 @@ class PerformanceTestPlugin : Plugin<Project> {
                 doLast {
                     val commitBaseline = (project.tasks.findByName("buildForkPointDistribution") as BuildForkPointDistribution).version
                     project.tasks.withType(PerformanceTest::class) {
-                        if (baselines == null) {
-                            // already set by command line
-                            baselines = commitBaseline
-                        }
+                        baselines = commitBaseline
                     }
                 }
             }

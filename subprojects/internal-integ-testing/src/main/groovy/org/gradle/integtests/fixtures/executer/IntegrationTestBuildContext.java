@@ -106,7 +106,7 @@ public class IntegrationTestBuildContext {
             String gradleVersion = version.split("-")[0];
             TestFile zip = getDistributionsDir().file("gradle-forkpoint/gradle-" + version + "-bin.zip");
             TestFile gradleHome = getDistributionsDir().file("gradle-forkpoint/gradle-" + version);
-            zip.untarTo(gradleHome);
+            zip.unzipTo(gradleHome);
             return new DefaultGradleDistribution(GradleVersion.version(gradleVersion), gradleHome, zip);
         }
         return new ReleasedGradleDistribution(version, previousVersionDir.file(version));
