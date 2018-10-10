@@ -34,30 +34,24 @@ public class DaemonPlayCompiler<T extends PlayCompileSpec> extends AbstractDaemo
     private final Iterable<File> compilerClasspath;
     private final Iterable<String> classLoaderPackages;
     private final PathToFileResolver fileResolver;
-    private final File daemonWorkingDir;
 
-    public DaemonPlayCompiler(File daemonWorkingDir, Compiler<T> compiler, WorkerDaemonFactory workerDaemonFactory, Iterable<File> compilerClasspath, Iterable<String> classLoaderPackages, PathToFileResolver fileResolver) {
+    public DaemonPlayCompiler(Compiler<T> compiler, WorkerDaemonFactory workerDaemonFactory, Iterable<File> compilerClasspath, Iterable<String> classLoaderPackages, PathToFileResolver fileResolver) {
         super(compiler, workerDaemonFactory);
         this.compilerClasspath = compilerClasspath;
         this.classLoaderPackages = classLoaderPackages;
         this.fileResolver = fileResolver;
-        this.daemonWorkingDir = daemonWorkingDir;
     }
 
     @Override
-    protected InvocationContext toInvocationContext(PlayCompileSpec spec) {
+    protected DaemonForkOptions toDaemonForkOptions(PlayCompileSpec spec) {
         BaseForkOptions forkOptions = spec.getForkOptions();
         JavaForkOptions javaForkOptions = new BaseForkOptionsConverter(fileResolver).transform(forkOptions);
-        File invocationWorkingDir = javaForkOptions.getWorkingDir();
-        javaForkOptions.setWorkingDir(daemonWorkingDir);
 
-        DaemonForkOptions daemonForkOptions = new DaemonForkOptionsBuilder(fileResolver)
+        return new DaemonForkOptionsBuilder(fileResolver)
             .javaForkOptions(javaForkOptions)
             .classpath(compilerClasspath)
             .sharedPackages(classLoaderPackages)
             .keepAliveMode(KeepAliveMode.SESSION)
             .build();
-
-        return new InvocationContext(invocationWorkingDir, daemonForkOptions);
     }
 }

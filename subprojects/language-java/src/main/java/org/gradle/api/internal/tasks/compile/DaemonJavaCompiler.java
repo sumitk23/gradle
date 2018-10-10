@@ -25,33 +25,26 @@ import org.gradle.workers.internal.DaemonForkOptionsBuilder;
 import org.gradle.workers.internal.KeepAliveMode;
 import org.gradle.workers.internal.WorkerDaemonFactory;
 
-import java.io.File;
 import java.util.Collections;
 
 public class DaemonJavaCompiler extends AbstractDaemonCompiler<JavaCompileSpec> {
     private static final Iterable<String> SHARED_PACKAGES = Collections.singleton("com.sun.tools.javac");
     private final PathToFileResolver fileResolver;
-    private final File daemonWorkingDir;
 
-    public DaemonJavaCompiler(File daemonWorkingDir, Compiler<JavaCompileSpec> delegate, WorkerDaemonFactory workerDaemonFactory, PathToFileResolver fileResolver) {
+    public DaemonJavaCompiler(Compiler<JavaCompileSpec> delegate, WorkerDaemonFactory workerDaemonFactory, PathToFileResolver fileResolver) {
         super(delegate, workerDaemonFactory);
         this.fileResolver = fileResolver;
-        this.daemonWorkingDir = daemonWorkingDir;
     }
 
     @Override
-    protected InvocationContext toInvocationContext(JavaCompileSpec spec) {
+    protected DaemonForkOptions toDaemonForkOptions(JavaCompileSpec spec) {
         ForkOptions forkOptions = spec.getCompileOptions().getForkOptions();
         JavaForkOptions javaForkOptions = new BaseForkOptionsConverter(fileResolver).transform(forkOptions);
-        File invocationWorkingDir = javaForkOptions.getWorkingDir();
-        javaForkOptions.setWorkingDir(daemonWorkingDir);
 
-        DaemonForkOptions daemonForkOptions = new DaemonForkOptionsBuilder(fileResolver)
+        return new DaemonForkOptionsBuilder(fileResolver)
             .javaForkOptions(javaForkOptions)
             .sharedPackages(SHARED_PACKAGES)
             .keepAliveMode(KeepAliveMode.SESSION)
             .build();
-
-        return new InvocationContext(invocationWorkingDir, daemonForkOptions);
     }
 }

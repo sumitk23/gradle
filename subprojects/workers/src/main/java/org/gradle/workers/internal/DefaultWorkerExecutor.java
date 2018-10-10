@@ -82,7 +82,7 @@ public class DefaultWorkerExecutor implements WorkerExecutor {
         // Serialize parameters in this thread prior to starting work in a separate thread
         ActionExecutionSpec spec;
         try {
-            spec = new SerializingActionExecutionSpec(actionClass, description, configuration.getForkOptions().getWorkingDir(), configuration.getParams());
+            spec = new SerializingActionExecutionSpec(actionClass, description, configuration.getParams());
         } catch (Throwable t) {
             throw new WorkExecutionException(description, t);
         }
@@ -224,7 +224,7 @@ public class DefaultWorkerExecutor implements WorkerExecutor {
 
         JavaForkOptions forkOptions = new DefaultJavaForkOptions(fileResolver);
         userForkOptions.copyTo(forkOptions);
-        forkOptions.setWorkingDir(workerDirectoryProvider.getIdleWorkingDirectory());
+        forkOptions.setWorkingDir(workerDirectoryProvider.getWorkingDirectory());
 
         return new DaemonForkOptionsBuilder(fileResolver)
                         .javaForkOptions(forkOptions)

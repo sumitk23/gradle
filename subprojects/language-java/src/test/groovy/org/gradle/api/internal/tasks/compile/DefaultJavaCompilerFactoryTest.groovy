@@ -26,7 +26,7 @@ import javax.tools.JavaCompiler
 
 class DefaultJavaCompilerFactoryTest extends Specification {
     Factory<JavaCompiler> javaCompilerFinder = Mock()
-    def factory = new DefaultJavaCompilerFactory({ new File("daemon-work-dir") }, Mock(WorkerDaemonFactory), javaCompilerFinder, Mock(FileResolver), Mock(ExecHandleFactory), Stub(AnnotationProcessorDetector))
+    def factory = new DefaultJavaCompilerFactory(Mock(WorkerDaemonFactory), javaCompilerFinder, Mock(FileResolver), Mock(ExecHandleFactory), Stub(AnnotationProcessorDetector))
 
     def "creates in-process compiler when JavaCompileSpec is provided"() {
         expect:
