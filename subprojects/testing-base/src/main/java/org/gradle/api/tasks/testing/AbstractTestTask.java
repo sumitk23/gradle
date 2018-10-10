@@ -106,7 +106,6 @@ public abstract class AbstractTestTask extends ConventionTask implements Verific
     private final DirectoryProperty binaryResultsDirectory;
     private TestReporter testReporter;
     private boolean ignoreFailures;
-    private boolean failFast;
 
     public AbstractTestTask() {
         Instantiator instantiator = getInstantiator();
@@ -459,7 +458,7 @@ public abstract class AbstractTestTask extends ConventionTask implements Verific
 
         TestExecuter testExecuter = createTestExecuter();
         TestListenerInternal resultProcessorDelegate = getTestListenerInternalBroadcaster().getSource();
-        if (failFast) {
+        if (!getProject().getGradle().getStartParameter().isContinueOnFailure()) {
             resultProcessorDelegate = new FailFastTestListenerInternal(testExecuter, resultProcessorDelegate);
         }
 
@@ -549,15 +548,6 @@ public abstract class AbstractTestTask extends ConventionTask implements Verific
     public AbstractTestTask setTestNameIncludePatterns(List<String> testNamePattern) {
         filter.setCommandLineIncludePatterns(testNamePattern);
         return this;
-    }
-
-    @Internal
-    boolean getFailFast() {
-        return failFast;
-    }
-
-    void setFailFast(boolean failFast) {
-        this.failFast = failFast;
     }
 
     /**

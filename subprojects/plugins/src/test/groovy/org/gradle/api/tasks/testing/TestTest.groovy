@@ -94,7 +94,6 @@ class TestTest extends AbstractConventionTaskTest {
         test.getIncludes().isEmpty()
         test.getExcludes().isEmpty()
         !test.getIgnoreFailures()
-        !test.getFailFast()
     }
 
     def "test execute()"() {
